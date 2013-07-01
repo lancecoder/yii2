@@ -21,11 +21,6 @@ use yii\web\Identity;
  */
 class User extends ActiveRecord implements Identity
 {
-	/**
-	 * @var string the raw password. Used to collect password input and isn't saved in database
-	 */
-	public $password;
-
 	const STATUS_DELETED = 0;
 	const STATUS_ACTIVE = 10;
 
@@ -103,8 +98,9 @@ class User extends ActiveRecord implements Identity
 	{
 		if(parent::beforeSave($insert)) {
 			if($this->isNewRecord) {
-				if(!empty($this->password)) {
-					$this->password_hash = SecurityHelper::generatePasswordHash($this->password);
+				$changed = $this->getDirtyAttributes(array('password_hash')) !== array();
+				if($changed) {
+					$this->password_hash = SecurityHelper::generatePasswordHash($this->password_hash);
 				}
 			}
 			return true;
